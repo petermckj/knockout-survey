@@ -1,0 +1,28 @@
+<html>
+	<head>
+		<title></title>
+		
+	</head>
+	<body>
+		<input type="checkbox" data-bind="checked: termsAccepted">
+		
+		<script src="js/knockout-latest.debug.js" type="text/javascript" charset="utf-8"></script>
+		<script>
+			/*window.quiz ={};
+			
+			(function (quiz) {
+				function Question(){
+					var self = this;
+					self.termsAccepted = ko.observable(true);
+				}
+				quiz.Question = Question;
+			})(window.quiz);*/
+			
+			var ViewModel = {
+				termsAccepted: ko.observable(true)
+			};
+			ko.applyBindings(ViewModel);
+			
+		</script>
+	</body>
+</html>
