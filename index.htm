@@ -4,22 +4,58 @@
 		
 	</head>
 	<body>
-		<input type="checkbox" data-bind="checked: termsAccepted">
+		<fieldset>
+			<div data-bind="text: questionText">
+			</div>
+			<select name="selType" data-bind="value: selectedAnswer, options: answers, optionsText: 'answerText'">
+			</select>
+		</fieldset>
 		
 		<script src="js/knockout-latest.debug.js" type="text/javascript" charset="utf-8"></script>
 		<script>
-			/*window.quiz ={};
+			window.survey ={};
 			
-			(function (quiz) {
+			(function (survey) {
+				function Answer(){
+					var self = this;
+					self.answerId = ko.observable(0);
+					self.answerText = ko.observable("answer lorem ipsem");
+				}
+			})(window.survey);
+			
+			(function (survey) {
 				function Question(){
 					var self = this;
-					self.termsAccepted = ko.observable(true);
+					self.questionNumber = ko.observable(0);
+					self.questionType = ko.observable("multiple");
+					self.questionText = ko.observable("lorem ipsem");
+					self.selectedAnswer = ko.observable(0);
+					self.answers = [
+						new survey.Answer({
+							answerId: 1,
+							answerText: "answer 1"
+						}),
+						new survey.Answer({
+							answerId: 2,
+							answerText: "answer 2"
+						})
+					];
 				}
-				quiz.Question = Question;
-			})(window.quiz);*/
+				survey.Question = Question;
+			})(window.survey);
+			
+			(function (survey){
+				function Survey(){
+					var self = this;
+					self.questions = [
+						new survey.Question()
+					],
+					self.currentQuestion = ko.observable(0);
+				}
+			})(window.survey);
 			
 			var ViewModel = {
-				termsAccepted: ko.observable(true)
+				
 			};
 			ko.applyBindings(ViewModel);
 			
