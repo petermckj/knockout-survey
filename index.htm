@@ -5,10 +5,22 @@
 	</head>
 	<body>
 		<fieldset>
-			<div data-bind="text: questionText">
+			<div id="error" data-bind="text: errorMessage"></div>
+			<div id="question-view" data-bind="with: currentQuestion">
+				
+				<span data-bind="text: questionNumber">
+				</span>.
+				<span data-bind="text: questionText">
+				</span>
+				<br />
+				<select name="selType" data-bind="value: selectedAnswer, options: answers, optionsText: 'answerText'">
+				</select>
 			</div>
-			<select name="selType" data-bind="value: selectedAnswer, options: answers, optionsText: 'answerText'">
-			</select>
+			<div id="button-view">
+				<button data-bind="click: previousQuestion">Previous Question</button>
+				<button data-bind="click: nextQuestion, visible: isFinished()">Next Question</button>
+				<button data-bind="click: finishSurvey, visible: (isFinished() ? false : true)">Finish Survey</button>
+			</div>
 		</fieldset>
 		
 		<script src="js/knockout-latest.debug.js" type="text/javascript" charset="utf-8"></script>
@@ -20,7 +32,9 @@
 					var self = this;
 					self.answerId = ko.observable(0);
 					self.answerText = ko.observable("answer lorem ipsem");
+					return self;
 				}
+				survey.Answer = Answer;
 			})(window.survey);
 			
 			(function (survey) {
@@ -29,34 +43,95 @@
 					self.questionNumber = ko.observable(0);
 					self.questionType = ko.observable("multiple");
 					self.questionText = ko.observable("lorem ipsem");
-					self.selectedAnswer = ko.observable(0);
-					self.answers = [
-						new survey.Answer({
-							answerId: 1,
-							answerText: "answer 1"
-						}),
-						new survey.Answer({
-							answerId: 2,
-							answerText: "answer 2"
-						})
-					];
+					self.selectedAnswer = ko.observable(null);
+					self.answers = ko.observableArray([
+						new survey.Answer().answerText("please select").answerId(0),
+						new survey.Answer().answerText("test").answerId(1),
+						new survey.Answer().answerText("test 2").answerId(2)
+					]);
+					return self;
 				}
 				survey.Question = Question;
 			})(window.survey);
 			
 			(function (survey){
-				function Survey(){
+				function SurveyViewModel(){
 					var self = this;
-					self.questions = [
-						new survey.Question()
-					],
-					self.currentQuestion = ko.observable(0);
+					self.userID = 1; //should be assigned somehow
+					self.questions = ko.observableArray([]);
+					self.currentQuestion = ko.observable(null);
+					self.errorMessage = ko.observable(null);
+					
+					self.setUserID = function(uid){
+						self.userID = uid;
+					};
+					
+					self.isFinished = ko.computed(function(){
+						var index = self.questions().indexOf(self.currentQuestion());
+						return (index+1 < self.questions().length);
+					});
+					
+					self.nextQuestion = function(){
+						//do some validation here
+						if(self.currentQuestion().selectedAnswer().answerId()===0){
+							self.errorMessage("Please select an answer");
+							return;
+						}
+						self.errorMessage(null);
+						//find our current question in the array
+						var index = self.questions().indexOf(self.currentQuestion());
+						if(index+1 < self.questions().length){
+							self.currentQuestion(self.questions()[index+1]);
+						}
+					}
+					
+					/*
+					*
+					Need to somehow switch templates based on the type of question that is 
+					being shown eg multi-choice, single choice etc.
+					*
+					*/
+					
+					
+					self.previousQuestion = function(){
+						var index = self.questions().indexOf(self.currentQuestion());
+						if(index > 0){
+							self.currentQuestion(self.questions()[index-1]);
+						}
+					}
+					
+					self.finishSurvey = function(){
+						for(var i = 0; i < self.questions().length; i++){
+							var q = self.questions()[i];
+							console.log(q.questionNumber() + ":" + q.selectedAnswer().answerText());
+						}
+					}
+					
+					self.addQuestion = function(question){
+						self.questions.push(question);
+						self.currentQuestion(question);
+					}
+					
+					self.addQuestions = function(questionsToAdd){
+						for(var i = 0; i < questionsToAdd.length; i++){
+							self.questions.push(questionsToAdd[i]);
+						}
+						self.currentQuestion(questionsToAdd[0]);
+					}
 				}
+				survey.SurveyViewModel = SurveyViewModel;
 			})(window.survey);
 			
-			var ViewModel = {
-				
-			};
+			var ViewModel = new survey.SurveyViewModel();
+			
+			//load survey in via JSON
+			//foreach(question q in questions)...
+			//load from mongodb document db
+			var q = new survey.Question().questionText('super').questionNumber(1);
+			var q2 = new survey.Question().questionText('smashing').questionNumber(2);
+			var q3 = new survey.Question().questionText('great').questionNumber(3);
+			ViewModel.addQuestions([q,q2,q3]);
+			
 			ko.applyBindings(ViewModel);
 			
 		</script>
