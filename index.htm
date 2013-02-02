@@ -15,8 +15,6 @@
 				<br />
 				<ul id="answer-view" data-bind="template: {name: 'answersTemplate', foreach: answers, as: 'answer'}">
 				</ul>
-				<select name="selType" data-bind="value: selectedAnswer, options: answers, optionsText: 'answerText'">
-				</select>
 			</div>
 			<div id="button-view">
 				<button data-bind="click: previousQuestion">Previous Question</button>
@@ -26,7 +24,7 @@
 		</fieldset>
 		<script type="text/html" id="answersTemplate">
 			<li>
-				<input id="answersGroup" name="answersGroup" type="radio" data-bind="value: answerText,checked: $parent.currentSelectedAnswerText()" />
+				<input id="answersGroup" name="answersGroup" type="radio" data-bind="value: answerText,checked: $parent.selectedAnswer" />
 				<label data-bind="text: answerText"></label>
 			</li>
 		</script>
@@ -50,14 +48,8 @@
 					self.questionNumber = ko.observable(0);
 					self.questionType = ko.observable("multiple");
 					self.questionText = ko.observable("lorem ipsem");
-					self.selectedAnswer = ko.observable(null);
-					self.currentSelectedAnswerText = ko.computed(function(){
-						if(self.selectedAnswer()){
-							return self.selectedAnswer().answerText();
-						}else{
-							return null;
-						}
-					});
+					self.selectedAnswer = ko.observable();
+					
 					self.answers = ko.observableArray([
 						new survey.Answer().answerText("please select").answerId(0),
 						new survey.Answer().answerText("test").answerId(1),
@@ -86,7 +78,7 @@
 					
 					self.nextQuestion = function(){
 						//do some validation here
-						if(self.currentQuestion().selectedAnswer().answerId()===0){
+						if(self.currentQuestion().selectedAnswer()===undefined || self.currentQuestion().selectedAnswer()==='please select'){
 							self.errorMessage("Please select an answer");
 							return;
 						}
@@ -129,7 +121,7 @@
 					self.finishSurvey = function(){
 						for(var i = 0; i < self.questions().length; i++){
 							var q = self.questions()[i];
-							console.log(q.questionNumber() + ":" + q.selectedAnswer().answerText());
+							console.log(q.questionNumber() + ":" + q.selectedAnswer());
 						}
 						//this function should validate and submit responses
 						//to server using AJAX / JSON
