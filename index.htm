@@ -13,6 +13,8 @@
 				<span data-bind="text: questionText">
 				</span>
 				<br />
+				<ul id="answer-view" data-bind="template: {name: 'answersTemplate', foreach: answers, as: 'answer'}">
+				</ul>
 				<select name="selType" data-bind="value: selectedAnswer, options: answers, optionsText: 'answerText'">
 				</select>
 			</div>
@@ -22,7 +24,12 @@
 				<button data-bind="click: finishSurvey, visible: (isFinished() ? false : true)">Finish Survey</button>
 			</div>
 		</fieldset>
-		
+		<script type="text/html" id="answersTemplate">
+			<li>
+				<input id="answersGroup" name="answersGroup" type="radio" data-bind="value: answerText,checked: $parent.currentSelectedAnswerText()" />
+				<label data-bind="text: answerText"></label>
+			</li>
+		</script>
 		<script src="js/knockout-latest.debug.js" type="text/javascript" charset="utf-8"></script>
 		<script>
 			window.survey ={};
@@ -44,6 +51,13 @@
 					self.questionType = ko.observable("multiple");
 					self.questionText = ko.observable("lorem ipsem");
 					self.selectedAnswer = ko.observable(null);
+					self.currentSelectedAnswerText = ko.computed(function(){
+						if(self.selectedAnswer()){
+							return self.selectedAnswer().answerText();
+						}else{
+							return null;
+						}
+					});
 					self.answers = ko.observableArray([
 						new survey.Answer().answerText("please select").answerId(0),
 						new survey.Answer().answerText("test").answerId(1),
@@ -57,11 +71,10 @@
 			(function (survey){
 				function SurveyViewModel(){
 					var self = this;
-					self.userID = 1; //should be assigned somehow
+					self.userID = 1; //should be assigned on load somehow
 					self.questions = ko.observableArray([]);
 					self.currentQuestion = ko.observable(null);
 					self.errorMessage = ko.observable(null);
-					
 					self.setUserID = function(uid){
 						self.userID = uid;
 					};
@@ -78,6 +91,12 @@
 							return;
 						}
 						self.errorMessage(null);
+						
+						//should send users response to server to be stored
+						//or maybe put in local storage
+						//does knockout do that for us anyway?
+						//$.POST(...);
+						
 						//find our current question in the array
 						var index = self.questions().indexOf(self.currentQuestion());
 						if(index+1 < self.questions().length){
@@ -87,11 +106,18 @@
 					
 					/*
 					*
+					TODO
 					Need to somehow switch templates based on the type of question that is 
 					being shown eg multi-choice, single choice etc.
 					*
 					*/
 					
+					/*
+					*
+					TODO
+					Need to add routing logic based on previous answers.
+					*
+					*/
 					
 					self.previousQuestion = function(){
 						var index = self.questions().indexOf(self.currentQuestion());
@@ -105,6 +131,8 @@
 							var q = self.questions()[i];
 							console.log(q.questionNumber() + ":" + q.selectedAnswer().answerText());
 						}
+						//this function should validate and submit responses
+						//to server using AJAX / JSON
 					}
 					
 					self.addQuestion = function(question){
