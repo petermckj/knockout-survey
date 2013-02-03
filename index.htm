@@ -5,26 +5,31 @@
 	</head>
 	<body>
 		<fieldset>
-			<div id="error" data-bind="text: errorMessage"></div>
+			<div id="error" data-bind="text: errorMessage, visible: (getAnswersToQuestion(getIndex()).length===0)"></div>
 			<div id="question-view" data-bind="with: currentQuestion">
-				
 				<span data-bind="text: questionNumber">
 				</span>.
 				<span data-bind="text: questionText">
 				</span>
 				<br />
-				<ul id="answer-view" data-bind="template: {name: 'answersTemplate', foreach: answers, as: 'answer'}">
+				<ul id="answer-view" data-bind="template: {name: $parent.questionMode, foreach: answers, as: 'answer'}">
 				</ul>
 			</div>
 			<div id="button-view">
-				<button data-bind="click: previousQuestion">Previous Question</button>
+				<button data-bind="click: previousQuestion, visible: getIndex()>0">Previous Question</button>
 				<button data-bind="click: nextQuestion, visible: isFinished()">Next Question</button>
 				<button data-bind="click: finishSurvey, visible: (isFinished() ? false : true)">Finish Survey</button>
 			</div>
 		</fieldset>
-		<script type="text/html" id="answersTemplate">
+		<script type="text/html" id="multiAnswerTemplate">
 			<li>
-				<input id="answersGroup" name="answersGroup" type="radio" data-bind="value: answerText,checked: $parent.selectedAnswer" />
+				<input type="checkbox" data-bind="value: answerText,checked: isSelected" />
+				<label data-bind="text: answerText"></label>
+			</li>
+		</script>
+		<script type="text/html" id="answerTemplate">
+			<li>
+				<input id="answersGroup" name="answersGroup" type="radio" data-bind="value: answerText,checked: isSelected" />
 				<label data-bind="text: answerText"></label>
 			</li>
 		</script>
@@ -32,11 +37,24 @@
 		<script>
 			window.survey ={};
 			
+			ko.observableArray.fn['filter'] = function(filter){
+				var a = this();
+				var result = [];
+				for(vari=0;i<a.length;i++){
+					var v = a[i];
+					if(filter(a)){
+						result.push(v);
+					}
+				}
+				return result;
+			};
+			
 			(function (survey) {
 				function Answer(){
 					var self = this;
 					self.answerId = ko.observable(0);
 					self.answerText = ko.observable("answer lorem ipsem");
+					self.isSelected = ko.observable(false);
 					return self;
 				}
 				survey.Answer = Answer;
@@ -48,10 +66,9 @@
 					self.questionNumber = ko.observable(0);
 					self.questionType = ko.observable("multiple");
 					self.questionText = ko.observable("lorem ipsem");
-					self.selectedAnswer = ko.observable();
+					//self.selectedAnswer = ko.observable();
 					
 					self.answers = ko.observableArray([
-						new survey.Answer().answerText("please select").answerId(0),
 						new survey.Answer().answerText("test").answerId(1),
 						new survey.Answer().answerText("test 2").answerId(2)
 					]);
@@ -67,18 +84,38 @@
 					self.questions = ko.observableArray([]);
 					self.currentQuestion = ko.observable(null);
 					self.errorMessage = ko.observable(null);
+					
 					self.setUserID = function(uid){
 						self.userID = uid;
 					};
 					
+					self.getIndex = function(){
+						return self.questions.indexOf(self.currentQuestion());
+					};
+					
 					self.isFinished = ko.computed(function(){
-						var index = self.questions().indexOf(self.currentQuestion());
-						return (index+1 < self.questions().length);
+						return (self.getIndex()+1 < self.questions().length);
 					});
 					
+					self.questionMode =  function(question, bindingContext){
+						if(bindingContext.$parent.questionType() === "multiple"){
+							return "multiAnswerTemplate";
+						}else{
+							return "answerTemplate";
+						}
+					};
+					
+					self.getAnswersToQuestion = function(index){
+						return self.questions()[index].answers().filter(function (item) {
+							return item.isSelected() === false ? false : true;
+						});
+					}
+					
 					self.nextQuestion = function(){
+						var index = self.getIndex();
+						
 						//do some validation here
-						if(self.currentQuestion().selectedAnswer()===undefined || self.currentQuestion().selectedAnswer()==='please select'){
+						if(self.getAnswersToQuestion(index).length === 0){
 							self.errorMessage("Please select an answer");
 							return;
 						}
@@ -90,11 +127,11 @@
 						//$.POST(...);
 						
 						//find our current question in the array
-						var index = self.questions().indexOf(self.currentQuestion());
+						
 						if(index+1 < self.questions().length){
 							self.currentQuestion(self.questions()[index+1]);
 						}
-					}
+					};
 					
 					/*
 					*
@@ -112,32 +149,36 @@
 					*/
 					
 					self.previousQuestion = function(){
-						var index = self.questions().indexOf(self.currentQuestion());
+						var index = self.getIndex();
 						if(index > 0){
 							self.currentQuestion(self.questions()[index-1]);
 						}
-					}
+					};
 					
 					self.finishSurvey = function(){
 						for(var i = 0; i < self.questions().length; i++){
 							var q = self.questions()[i];
-							console.log(q.questionNumber() + ":" + q.selectedAnswer());
+							var a = self.getAnswersToQuestion(i);
+							console.log(q.questionNumber() + ":");
+							for(var x = 0; x < a.length;x++){
+								console.log(a[x].answerText());
+							}
 						}
 						//this function should validate and submit responses
 						//to server using AJAX / JSON
-					}
+					};
 					
 					self.addQuestion = function(question){
 						self.questions.push(question);
 						self.currentQuestion(question);
-					}
+					};
 					
 					self.addQuestions = function(questionsToAdd){
 						for(var i = 0; i < questionsToAdd.length; i++){
 							self.questions.push(questionsToAdd[i]);
 						}
 						self.currentQuestion(questionsToAdd[0]);
-					}
+					};
 				}
 				survey.SurveyViewModel = SurveyViewModel;
 			})(window.survey);
@@ -147,9 +188,9 @@
 			//load survey in via JSON
 			//foreach(question q in questions)...
 			//load from mongodb document db
-			var q = new survey.Question().questionText('super').questionNumber(1);
+			var q = new survey.Question().questionText('super').questionNumber(1).questionType("single");
 			var q2 = new survey.Question().questionText('smashing').questionNumber(2);
-			var q3 = new survey.Question().questionText('great').questionNumber(3);
+			var q3 = new survey.Question().questionText('great').questionNumber(3).questionType("single");
 			ViewModel.addQuestions([q,q2,q3]);
 			
 			ko.applyBindings(ViewModel);
