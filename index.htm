@@ -66,8 +66,6 @@
 					self.questionNumber = ko.observable(0);
 					self.questionType = ko.observable("multiple");
 					self.questionText = ko.observable("lorem ipsem");
-					//self.selectedAnswer = ko.observable();
-					
 					self.answers = ko.observableArray([
 						new survey.Answer().answerText("test").answerId(1),
 						new survey.Answer().answerText("test 2").answerId(2)
