@@ -1,0 +1,107 @@
+<html>
+	<head>
+		<title></title>
+		
+	</head>
+	<body>
+		<fieldset>
+			<div id="error" data-bind="text: errorMessage, visible: (getAnswersToQuestion(getIndex()).length===0)"></div>
+			<div id="question-view" data-bind="with: currentQuestion">
+				<span data-bind="text: questionNumber">
+				</span>.
+				<span data-bind="text: questionText">
+				</span>
+				<br />
+				<ul id="answer-view" data-bind="template: {name: $parent.questionMode, foreach: answers, as: 'answer'}">
+				</ul>
+			</div>
+			<div id="button-view">
+				<button data-bind="click: previousQuestion, visible: getIndex()>0">Previous Question</button>
+				<button data-bind="click: nextQuestion, visible: isFinished()">Next Question</button>
+				<button data-bind="click: finishSurvey, visible: (isFinished() ? false : true)">Finish Survey</button>
+			</div>
+		</fieldset>
+		<script type="text/html" id="multiAnswerTemplate">
+			<li>
+				<input type="checkbox" data-bind="value: answerText,checked: isSelected" />
+				<label data-bind="text: answerText"></label>
+			</li>
+		</script>
+		<script type="text/html" id="answerTemplate">
+			<li>
+				<input id="answersGroup" name="answersGroup" type="radio" data-bind="value: answerText,checked: isSelected" />
+				<label data-bind="text: answerText"></label>
+			</li>
+		</script>
+		<script src="js/base.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/libs/knockout-latest.debug.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/libs/knockout.mapping-latest.debug.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/libs/jquery-1.9.0.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/ko.extensions.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/answer.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/question.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/surveyviewmodel.js" type="text/javascript" charset="utf-8"></script>
+		<script>
+			(function(survey){
+				function Run(){
+					var self = this;
+					self.ViewModel = new survey.SurveyViewModel();
+					var q = new survey.Question().questionText('super').questionNumber(1).questionType("single");
+					var q2 = new survey.Question().questionText('smashing').questionNumber(2);
+					var q3 = new survey.Question().questionText('great').questionNumber(3).questionType("single");
+					self.ViewModel.addQuestions([q,q2,q3]);
+					
+					ko.applyBindings(self.ViewModel);
+				}
+				
+				function loadJSONAndRun(){
+					var self = this;
+					self.ViewModel = new survey.SurveyViewModel();
+					self.data = $.getJSON('http://127.0.0.1:8080/survey/', function(data){
+						/*//manually map data
+						var questionsFromJSON = [];
+						$.each(data,function(key,val){
+							$.each(val, function(k,v){
+								questionsFromJSON.push(v);
+							});
+						});
+						self.ViewModel.addQuestions( questionsFromJSON );*/
+						var mapping = {
+							'questions': {
+							    create: function(options) {
+									//console.log(options.data);
+							        return new survey.Question(options.data);
+							    }
+							},
+							'answers': {
+								create: function(options) {
+									//console.log(options.data);
+									return new survey.Answer(options.data);
+								}
+							}
+						};
+						
+						ko.mapping.fromJS(data, mapping, self.ViewModel);
+						//need to set currentQuestion to 1st question
+						self.ViewModel.currentQuestion(self.ViewModel.questions()[0]);
+						ko.applyBindings(self.ViewModel);
+					});
+					//var ViewModel = new survey.SurveyViewModel();
+					
+				}
+				survey.loadJSONAndRun = loadJSONAndRun;
+				survey.Run = Run;
+				
+			})(window.survey);
+			
+			survey.loadJSONAndRun();
+			//load survey in via JSON
+			//foreach(question q in questions)...
+			//load from mongodb document db
+			
+			
+			
+			
+		</script>
+	</body>
+</html>

@@ -1,51 +1,89 @@
 var http = require('http');
 var sys = require('sys');
-var server = http.createServer(function(req, res) {
-    
- if(req.url == '/parcel/1') {
-  res.writeHead(200, {
-         'Content-Type': 'application/json'
-     });
-     res.end(JSON.stringify(getTrackInfoJson()));
- } else if(req.url = '/stats/last6'){
-  res.writeHead(200, {
-          'Content-Type': 'application/json'
-     });
-     res.end(JSON.stringify(getStatsInfoJson())); 
- }
+var express = require('express');
+var app = express();
+var port = 8080;
+app.use(express.static(__dirname + '/public'));
+var server = app.listen(port);
+
+app.get("/survey",function(req,res){
+	res.writeHead(200, {
+		'Content-Type': 'application/json'
+	});
+	res.end(JSON.stringify(getSurveyJson()));
 });
-server.listen(8124, "127.0.0.1");
-console.log('Server running at http://127.0.0.1:8124/');
 
-function getStatsInfoJson() {
- "statinfo":{
-  "type":"bar",
-  "category":"parcelslast6",
-  "data" : [232, 242, 32, 342, 100, 98]
- }
-}
+console.log('Server running at http://127.0.0.1:/' + port);
 
-function getTrackInfoJson() {
- return { 
-     "trackinfo":{
-         "parcelnr":123456,
-         "provider":"DHL",
-         "trackdetails":{
-             "trackdetail":[
-                 {
-                     "date":"01.01.2010",
-                     "info":"Got parcel from Customer"
-                 },
-                 {
-                     "date":"02.01.2010",
-                     "info":"Shipped to Target depot"
-                 },
-                 {
-                     "date":"03.01.2010",
-                     "info":"Delivered to Customer"
-                 }
-             ]
-         }
-     }
- };
+function getSurveyJson() {
+	return {
+		"questions" : [
+				{
+					"questionNumber" : 1,
+					"questionType" : "multiple",
+					"questionText" : "question 1",
+					"answers" : [
+						{
+							"answerId" : 1,
+							"answerText" : "answer 1 q 1",
+							"isSelected" : false
+						},
+						{
+							"answerId" : 2,
+							"answerText" : "answer 2 q 1",
+							"isSelected" : false
+						},
+						{
+							"answerId" : 3,
+							"answerText" : "answer 3 q 1",
+							"isSelected" : false
+						},
+					]
+				},
+				{
+					"questionNumber" : 2,
+					"questionType" : "single",
+					"questionText" : "question 2",
+					"answers" : [
+						{
+							"answerId" : 4,
+							"answerText" : "answer 1 q 2",
+							"isSelected" : false
+						},
+						{
+							"answerId" : 5,
+							"answerText" : "answer 2 q 2",
+							"isSelected" : false
+						},
+						{
+							"answerId" : 6,
+							"answerText" : "answer 3 q 2",
+							"isSelected" : false
+						},
+					]
+				},
+				{
+					"questionNumber" : 3,
+					"questionType" : "single",
+					"questionText" : "question 3",
+					"answers" : [
+						{
+							"answerId" : 1,
+							"answerText" : "answer 1 q 3",
+							"isSelected" : false
+						},
+						{
+							"answerId" : 2,
+							"answerText" : "answer 2 q 3",
+							"isSelected" : false
+						},
+						{
+							"answerId" : 3,
+							"answerText" : "answer 3 q 3",
+							"isSelected" : false
+						},
+					]
+				}
+			]
+	};
 }
