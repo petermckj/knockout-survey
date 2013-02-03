@@ -77,14 +77,21 @@
 		};
 		
 		self.finishSurvey = function(){
-			for(var i = 0; i < self.questions().length; i++){
+			/*for(var i = 0; i < self.questions().length; i++){
 				var q = self.questions()[i];
 				var a = self.getAnswersToQuestion(i);
 				console.log(q.questionNumber() + ":");
 				for(var x = 0; x < a.length;x++){
 					console.log(a[x].answerText());
 				}
-			}
+			}*/
+			
+			var data = ko.toJSON(self);
+			console.log(data);
+			$.post('/survey', data ,function(data){
+				console.log('post sent, data received:' + data);
+			});
+			
 			//this function should validate and submit responses
 			//to server using AJAX / JSON
 		};

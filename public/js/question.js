@@ -5,11 +5,12 @@
 		self.questionType = ko.observable();
 		self.questionText = ko.observable();
 		self.answers = ko.observableArray([]);
+		
 		if(data){
 			self.questionNumber(data.questionNumber);
 			self.questionType(data.questionType);
 			self.questionText(data.questionText);
-			if(data.answers.length>0){
+			if(data.answers!==undefined && data.answers.length>0){
 				var mapping = {
 					'answers': {
 						create: function(options) {

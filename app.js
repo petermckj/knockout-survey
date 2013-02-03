@@ -4,6 +4,7 @@ var express = require('express');
 var app = express();
 var port = 8080;
 app.use(express.static(__dirname + '/public'));
+app.use(express.bodyParser());
 var server = app.listen(port);
 
 app.get("/survey",function(req,res){
@@ -12,6 +13,14 @@ app.get("/survey",function(req,res){
 	});
 	res.end(JSON.stringify(getSurveyJson()));
 });
+
+app.post("/survey", function(req, res){
+	console.log(req.body);
+	res.writeHead(200, {
+		'Content-Type': 'application/json'
+	});
+	res.end(JSON.stringify({"response":"ok"}));
+})
 
 console.log('Server running at http://127.0.0.1:/' + port);
 
