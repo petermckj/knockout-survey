@@ -54,13 +54,6 @@
 			}
 		};
 		
-		/*
-		*
-		TODO
-		Need to somehow switch templates based on the type of question that is 
-		being shown eg multi-choice, single choice etc.
-		*
-		*/
 		
 		/*
 		*
