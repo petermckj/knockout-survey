@@ -58,7 +58,7 @@
 				function loadJSONAndRun(){
 					var self = this;
 					self.ViewModel = new survey.SurveyViewModel();
-					self.data = $.getJSON('http://127.0.0.1:8080/survey/', function(data){
+					self.data = $.getJSON('http://127.0.0.1:8080/mongo/', function(data){
 						/*//manually map data
 						var questionsFromJSON = [];
 						$.each(data,function(key,val){
@@ -82,7 +82,7 @@
 							}
 						};
 						
-						ko.mapping.fromJS(data, mapping, self.ViewModel);
+						ko.mapping.fromJS(data[0], mapping, self.ViewModel);
 						//need to set currentQuestion to 1st question
 						self.ViewModel.currentQuestion(self.ViewModel.questions()[0]);
 						ko.applyBindings(self.ViewModel);

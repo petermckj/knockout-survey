@@ -79,7 +79,7 @@
 				}
 			}*/
 			
-			var data = ko.toJSON(self);
+			var data = ko.mapping.toJS(self);
 			console.log(data);
 			$.post('/survey', data ,function(data){
 				console.log('post sent, data received:' + data);
