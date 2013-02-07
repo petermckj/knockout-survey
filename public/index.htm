@@ -17,8 +17,8 @@
 			</div>
 			<div id="button-view">
 				<button data-bind="click: previousQuestion, visible: getIndex()>0">Previous Question</button>
-				<button data-bind="click: nextQuestion, visible: isFinished()">Next Question</button>
-				<button data-bind="click: finishSurvey, visible: (isFinished() ? false : true)">Finish Survey</button>
+				<button data-bind="click: nextQuestion, visible: (isFinished() ? false : true)">Next Question</button>
+				<button data-bind="click: finishSurvey, visible: (isFinished() ? true : false)">Finish Survey</button>
 			</div>
 		</fieldset>
 		<script type="text/html" id="multiAnswerTemplate">

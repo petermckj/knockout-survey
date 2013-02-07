@@ -11,11 +11,15 @@
 		};
 		
 		self.getIndex = function(){
+			if(self.currentQuestion()===null||self.currentQuestion()===undefined)
+				return -1;
 			return self.questions.indexOf(self.currentQuestion());
 		};
 		
 		self.isFinished = ko.computed(function(){
-			return (self.getIndex()+1 < self.questions().length);
+			if(self.currentQuestion()===null||self.currentQuestion()===undefined)
+				return false;
+			return (self.getIndex()+1 >= self.questions().length);
 		});
 		
 		self.questionMode =  function(question, bindingContext){
@@ -28,7 +32,7 @@
 		
 		self.getAnswersToQuestion = function(index){
 			return self.questions()[index].answers().filter(function (item) {
-				return item.isSelected() === false ? false : true;
+				return (item.isSelected() === false || item.isSelected() === undefined) ? false : true;
 			});
 		}
 		
@@ -70,14 +74,6 @@
 		};
 		
 		self.finishSurvey = function(){
-			/*for(var i = 0; i < self.questions().length; i++){
-				var q = self.questions()[i];
-				var a = self.getAnswersToQuestion(i);
-				console.log(q.questionNumber() + ":");
-				for(var x = 0; x < a.length;x++){
-					console.log(a[x].answerText());
-				}
-			}*/
 			
 			var data = ko.mapping.toJS(self);
 			console.log(data);
@@ -95,10 +91,14 @@
 		};
 		
 		self.addQuestions = function(questionsToAdd){
+			if(Object.prototype.toString.call(questionsToAdd)!=="[object Array]" || questionsToAdd.length <= 0)
+				return;
 			for(var i = 0; i < questionsToAdd.length; i++){
-				self.questions.push(questionsToAdd[i]);
+				if( questionsToAdd[i].constructor === survey.Question )
+					self.questions.push(questionsToAdd[i]);
 			}
-			self.currentQuestion(questionsToAdd[0]);
+			if(self.questions().length > 0)
+				self.currentQuestion(questionsToAdd[0]);
 		};
 	}
 	survey.SurveyViewModel = SurveyViewModel;
