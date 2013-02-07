@@ -40,6 +40,7 @@
 		<script src="js/libs/json2.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/ko.extensions.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/answer.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/route.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/question.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/surveyviewmodel.js" type="text/javascript" charset="utf-8"></script>
 		<script>
@@ -58,15 +59,7 @@
 				function loadJSONAndRun(){
 					var self = this;
 					self.ViewModel = new survey.SurveyViewModel();
-					self.data = $.getJSON('http://127.0.0.1:8080/mongo/', function(data){
-						/*//manually map data
-						var questionsFromJSON = [];
-						$.each(data,function(key,val){
-							$.each(val, function(k,v){
-								questionsFromJSON.push(v);
-							});
-						});
-						self.ViewModel.addQuestions( questionsFromJSON );*/
+					self.data = $.getJSON('http://127.0.0.1:8080/survey/', function(data){
 						var mapping = {
 							'questions': {
 							    create: function(options) {
@@ -81,8 +74,8 @@
 								}
 							}
 						};
-						
-						ko.mapping.fromJS(data[0], mapping, self.ViewModel);
+						//ko.mapping.fromJS(data[0], mapping, self.ViewModel);
+						ko.mapping.fromJS(data, mapping, self.ViewModel);
 						//need to set currentQuestion to 1st question
 						self.ViewModel.currentQuestion(self.ViewModel.questions()[0]);
 						ko.applyBindings(self.ViewModel);

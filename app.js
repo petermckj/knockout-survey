@@ -109,6 +109,13 @@ function getSurveyJson() {
 							"answerText" : "answer 3 q 1",
 							"isSelected" : false
 						},
+					],
+					"routing":[
+						{
+								"questionNumber": 2,
+								"ifAnswers": [1,2,3],
+								"answerLogic": "ALL"							
+						}
 					]
 				},
 				{
@@ -131,6 +138,18 @@ function getSurveyJson() {
 							"answerText" : "answer 3 q 2",
 							"isSelected" : false
 						},
+					],
+					"routing": [
+						{
+								"questionNumber": 3,
+								"ifAnswers": [4,5],
+								"answerLogic": "OR"							
+						},
+						{
+								"questionNumber": 4,
+								"ifAnswers": [6],
+								"answerLogic": "OR"
+						},
 					]
 				},
 				{
@@ -139,21 +158,57 @@ function getSurveyJson() {
 					"questionText" : "question 3",
 					"answers" : [
 						{
-							"answerId" : 1,
+							"answerId" : 7,
 							"answerText" : "answer 1 q 3",
 							"isSelected" : false
 						},
 						{
-							"answerId" : 2,
+							"answerId" : 8,
 							"answerText" : "answer 2 q 3",
 							"isSelected" : false
 						},
 						{
-							"answerId" : 3,
+							"answerId" : 9,
 							"answerText" : "answer 3 q 3",
 							"isSelected" : false
 						},
+					]	,
+					"routing": [
+						{
+								"questionNumber": 4,
+								"ifAnswers": [7,8,9],
+								"answerLogic": "ALL"
+						}
 					]
+				},
+				{
+					"questionNumber" : 4,
+					"questionType" : "multiple",
+					"questionText" : "question 4",
+					"answers" : [
+						{
+							"answerId" : 10,
+							"answerText" : "answer 1 q 4",
+							"isSelected" : false
+						},
+						{
+							"answerId" : 11,
+							"answerText" : "answer 2 q 4",
+							"isSelected" : false
+						},
+						{
+							"answerId" : 12,
+							"answerText" : "answer 3 q 4",
+							"isSelected" : false
+						},
+					]	,
+						"routing": [
+								{
+									"questionNumber": 0,
+									"ifAnswers": [10,11,12],
+									"answerLogic": "ALL"
+								}
+						]
 				}
 			]
 	};

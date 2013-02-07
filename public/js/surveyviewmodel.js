@@ -38,9 +38,9 @@
 		
 		self.nextQuestion = function(){
 			var index = self.getIndex();
-			
+			var answers = self.getAnswersToQuestion(index);
 			//do some validation here
-			if(self.getAnswersToQuestion(index).length === 0){
+			if(answers.length === 0){
 				self.errorMessage("Please select an answer");
 				return;
 			}
@@ -52,10 +52,38 @@
 			//$.POST(...);
 			
 			//find our current question in the array
-			
-			if(index+1 < self.questions().length){
-				self.currentQuestion(self.questions()[index+1]);
+			if(self.questions()[index].routing().length>0){
+				var routing = self.questions()[index].routing();
+
+				for(var i = 0; i < routing.length; i++){
+					var route = routing[i];
+					if(route.answerLogic()==="ALL"){
+						//go to next question
+						if(index+1 < self.questions().length){
+							self.currentQuestion(self.questions()[index+1]);
+						}
+						return;
+					}else if(route.answerLogic()==="OR"){
+						var answersToMatch = route.ifAnswers();
+						for(var j = 0; j < answersToMatch.length; j++){
+							for(var k = 0; k < answers.length; k++){
+								if(answers[k].answerId()===answersToMatch[j]){
+									var next = self.questions().filter(function(item){
+										return item.questionNumber()===route.questionNumber() ? true : false;
+									});
+									self.currentQuestion(next[0]);
+									return;
+								}
+							}
+						}
+					}else{
+						//AND
+					}
+				}
 			}
+			
+			
+			
 		};
 		
 		
@@ -67,6 +95,15 @@
 		*/
 		
 		self.previousQuestion = function(){
+			
+				/*
+				*
+				TODO
+				Need to add routing to the questions going backwards as
+				they now route forwards!!!
+				*
+				*/
+			
 			var index = self.getIndex();
 			if(index > 0){
 				self.currentQuestion(self.questions()[index-1]);
@@ -86,8 +123,10 @@
 		};
 		
 		self.addQuestion = function(question){
-			self.questions.push(question);
-			self.currentQuestion(question);
+			if( questionsToAdd[i].constructor === survey.Question ){
+				self.questions.push(question);
+				self.currentQuestion(question);
+			}
 		};
 		
 		self.addQuestions = function(questionsToAdd){

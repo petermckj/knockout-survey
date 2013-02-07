@@ -10,17 +10,22 @@
 			self.questionNumber(data.questionNumber);
 			self.questionType(data.questionType);
 			self.questionText(data.questionText);
-			if(data.answers!==undefined && data.answers.length>0){
-				var mapping = {
-					'answers': {
-						create: function(options) {
-							return new survey.Answer(options.data);
-						}
+
+			var mapping = {
+				'answers': {
+					create: function(options) {
+						return new survey.Answer(options.data);
 					}
-				};
+				},
+				'routing': {
+					create: function(options) {
+						return new survey.Route(options.data);
+					}
+				}
+			};
 				
-				ko.mapping.fromJS(data, mapping, this);
-			}
+			ko.mapping.fromJS(data, mapping, this);
+
 		}
 		return self;
 	}
