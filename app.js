@@ -45,7 +45,7 @@ app.get("/survey",function(req,res){
 	res.writeHead(200, {
 		'Content-Type': 'application/json'
 	});
-	res.end(JSON.stringify(getSurveyJson()));
+	res.end(JSON.stringify(getSurveyJSON()));
 });
 
 app.get("/mongo", function(req,res){
@@ -86,7 +86,7 @@ function getJSONFromMongo(callback){
 	  })
 }
 
-function getSurveyJson() {
+function getSurveyJSON() {
 	return {
 		"questions" : [
 				{
@@ -176,9 +176,14 @@ function getSurveyJson() {
 					"routing": [
 						{
 								"questionNumber": 4,
-								"ifAnswers": [7,8,9],
+								"ifAnswers": [7,8],
+								"answerLogic": "AND"
+						},
+						{
+								"questionNumber": 5,
+								"ifAnswers": [9],
 								"answerLogic": "ALL"
-						}
+						},
 					]
 				},
 				{
@@ -204,8 +209,37 @@ function getSurveyJson() {
 					]	,
 						"routing": [
 								{
-									"questionNumber": 0,
+									"questionNumber": 5,
 									"ifAnswers": [10,11,12],
+									"answerLogic": "ALL"
+								}
+						]
+				},
+				{
+					"questionNumber" : 5,
+					"questionType" : "single",
+					"questionText" : "question 5",
+					"answers" : [
+						{
+							"answerId" : 13,
+							"answerText" : "answer 1 q 5",
+							"isSelected" : false
+						},
+						{
+							"answerId" : 14,
+							"answerText" : "answer 2 q 5",
+							"isSelected" : false
+						},
+						{
+							"answerId" : 15,
+							"answerText" : "answer 3 q 5",
+							"isSelected" : false
+						},
+					]	,
+						"routing": [
+								{
+									"questionNumber": 0,
+									"ifAnswers": [13,14,15],
 									"answerLogic": "ALL"
 								}
 						]

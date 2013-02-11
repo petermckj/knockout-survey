@@ -23,11 +23,7 @@
 		});
 		
 		self.questionMode =  function(question, bindingContext){
-			if(bindingContext.$parent.questionType() === "multiple"){
-				return "multiAnswerTemplate";
-			}else{
-				return "answerTemplate";
-			}
+			return bindingContext.$parent.questionType();
 		};
 		
 		self.getAnswersToQuestion = function(index){
@@ -54,38 +50,56 @@
 			//find our current question in the array
 			if(self.questions()[index].routing().length>0){
 				var routing = self.questions()[index].routing();
-
+				
 				for(var i = 0; i < routing.length; i++){
 					var route = routing[i];
-					if(route.answerLogic()==="ALL"){
-						//go to next question
-						if(index+1 < self.questions().length){
-							self.currentQuestion(self.questions()[index+1]);
-						}
+					var answersToMatch = route.ifAnswers();
+					
+					if(route.answerLogic()==="ALL" || doesArrayContainElements(answers,answersToMatch,route.answerLogic())){
+						var next = self.questions().filter(function(item){
+							return item.questionNumber()===route.questionNumber() ? true : false;
+						});
+						self.currentQuestion(next[0]);
 						return;
-					}else if(route.answerLogic()==="OR"){
-						var answersToMatch = route.ifAnswers();
-						for(var j = 0; j < answersToMatch.length; j++){
-							for(var k = 0; k < answers.length; k++){
-								if(answers[k].answerId()===answersToMatch[j]){
-									var next = self.questions().filter(function(item){
-										return item.questionNumber()===route.questionNumber() ? true : false;
-									});
-									self.currentQuestion(next[0]);
-									return;
-								}
-							}
-						}
-					}else{
-						//AND
 					}
+				}
+			}			
+				
+		};
+		
+		function doesArrayContainElements(a,b,logic){
+			
+			if(logic==="AND" && (a.length<b.length))
+					return false; //,must be false if source array shorter than elements to find array
+			
+			var c = 0;
+			for(var i=0;i<a.length;i++){
+				var id = a[i].answerId();
+				for(var j=0;j<b.length;j++){
+					if(id===b[j])
+						c++;
 				}
 			}
 			
+			if((logic==="AND" && c < b.length) || (logic==="OR" && c===0))
+				return false;
 			
-			
-		};
+			return true;
+		}
 		
+		self.loadFromJSON = function(json){
+			var mapping = {
+				'questions': {
+				    create: function(options) {
+				        return new survey.Question(options.data);
+				    }
+				}
+			};
+			
+			ko.mapping.fromJS(json, mapping, self);
+			//need to set currentQuestion to 1st question
+			self.currentQuestion(self.questions()[0]);
+		};
 		
 		/*
 		*

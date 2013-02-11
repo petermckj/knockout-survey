@@ -4,7 +4,6 @@
 		self.questionNumber = ko.observable();
 		self.ifAnswers = ko.observableArray([]);
 		self.answerLogic = ko.observable();
-		console.log('test');
 		if(data){
 			self.questionNumber(data.questionNumber);
 			self.answerLogic(data.answerLogic);

@@ -21,13 +21,13 @@
 				<button data-bind="click: finishSurvey, visible: (isFinished() ? true : false)">Finish Survey</button>
 			</div>
 		</fieldset>
-		<script type="text/html" id="multiAnswerTemplate">
+		<script type="text/html" id="multiple">
 			<li>
 				<input type="checkbox" data-bind="value: answerText,checked: isSelected" />
 				<label data-bind="text: answerText"></label>
 			</li>
 		</script>
-		<script type="text/html" id="answerTemplate">
+		<script type="text/html" id="single">
 			<li>
 				<input id="answersGroup" name="answersGroup" type="radio" data-bind="value: answerText,checked: isSelected" />
 				<label data-bind="text: answerText"></label>
